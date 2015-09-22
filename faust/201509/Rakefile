@@ -1,0 +1,11 @@
+MAID_PATH = File.expand_path "~/.maid"
+POKERFILE = "poker.rb"
+
+task :install do
+  mkdir_p MAID_PATH
+  copy('poker.rb', File.join(MAID_PATH, POKERFILE))
+end
+
+task :test do
+  sh "maid clean --noop -r poker.rb"
+end
