@@ -218,6 +218,17 @@ Maid.rules do
       end
     end
 
+    rule "[DAT] #{poker_pattern} - limit #{limit}" do
+      dat_pattern = "*#{poker_pattern}*.dat"
+      dir("#{SOURCE}/**/#{dat_pattern}").each do |path|
+        # skip pathes without limit pattern
+        next unless path.include?(limit_pattern)
+        year = detect_year path
+        destination = File.join(DESTINATION, poker, limit, year)
+        kind_move path, destination
+      end
+    end
+
     rule "[ZIP] #{poker_pattern} - limit #{limit}" do
 
       # TODO: zip
