@@ -26,6 +26,34 @@ LIMITS = {
 }
 
 POKER_MAPPING = {
+  "NL Holdem-PokerStars" => [
+    "NL Holdem-PokerStars",
+    "NoLimitHoldem-PokerStars",
+    "PokerStars-NoLimitHoldem"
+  ],
+
+  "FL Holdem-PokerStars" => [
+    "FL Holdem-PokerStars",
+    "FixedLimitHoldem-PokerStars",
+    "PokerStars-FixedLimitHoldem"
+  ],
+
+  "PL Omaha-PokerStars" => [
+    "PLO-PokerStars",
+    "PotLimitOmaha-PokerStars",
+    "PokerStars-PotLimitOmaha"
+  ],
+
+  "PL Omaha-FullTilt" => [
+    "PotLimitOmaha-FullTilt",
+    "FullTilt-PotLimitOmaha"
+  ],
+
+  "PL Omaha-Pacific" => [
+    "PotLimitOmaha-Pacific",
+    "Pacific-PotLimitOmaha"
+  ],
+
   "FL Holdem-OnGame" => [
     "FL Holdem-OnGame",
     "FixedLimitHoldem-OnGame"
@@ -48,21 +76,6 @@ POKER_MAPPING = {
     "FixedLimitHoldem-Pacific"
   ],
 
-  "FL Holdem-PokerStars" => [
-    "FL Holdem-PokerStars",
-    "FixedLimitHoldem-PokerStars"
-  ],
-
-  "NL Holdem-PokerStars" => [
-    "NL Holdem-PokerStars",
-    "NoLimitHoldem-PokerStars"
-  ],
-
-  "PL Omaha-PokerStars" => [
-    "PLO-PokerStars",
-    "PotLimitOmaha-PokerStars"
-  ],
-
   "FL Omaha Hi-Lo-PokerStars" => [
     "FixedLimitOmahaHiLo-PokerStars",
     "FL Omaha Hi-Lo-PokerStars",
@@ -73,16 +86,8 @@ POKER_MAPPING = {
     "PotLimitOmaha-OnGame"
   ],
 
-  "PL Omaha-Pacific" => [
-    "PotLimitOmaha-Pacific"
-  ],
-
   "FL Holdem-FullTilt" => [
     "FixedLimitHoldem-FullTilt"
-  ],
-
-  "PL Omaha-FullTilt" => [
-    "PotLimitOmaha-FullTilt"
   ],
 
   "NL Holdem-MicroGaming" => [
@@ -242,10 +247,9 @@ Maid.rules do
         destination = File.join(DESTINATION, poker, limit, year)
         mkdir(destination)
 
-        # Create temp directory where zip file was found and extract zip
+        # Create temp directory and extract zip
         # contents there
-        dirname = File.dirname path
-        Dir.mktmpdir 'temp_', dirname do |tempdir|
+        Dir.mktmpdir 'poker_' do |tempdir|
           Zip::File.open(path) do |zipfile|
             zipfile.each do |file|
               filename = file.name
