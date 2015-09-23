@@ -136,20 +136,21 @@ def detect_year filepath
   end
 end
 
-def name_with_suffix filepath
+def names_with_suffix filepath
   ext = File.extname filepath
   name = File.basename filepath, ext
   path = File.dirname filepath
 
   suffix = 0
   suffix_name = nil
+  acc = [filepath]
   while true
     suffix += 1
     suffix_name = File.join(path, "#{name}_#{suffix}#{ext}")
-    log2 "Checking for new name #{suffix_name}"
+    acc << suffix_name
     break unless File.exists? suffix_name
   end
-  suffix_name
+  acc
 end
 
 def log2 msg
@@ -170,19 +171,25 @@ def kind_move source_file, dest_folder
 
   dest_file = File.join dest_folder, basename
 
-  if File.exist? dest_file
-    if FileUtils.cmp source_file, dest_file
-      log2 "Duplicate found, removing #{source_file}"
-      return remove(source_file)
-    else
-      dest_file = name_with_suffix dest_file
-      log2 "Synonym found, copying to #{dest_file}"
-    end
+  unless File.exists? dest_file
+    mkdir dest_folder
+    return rename(source_file, dest_file)
   end
 
-  mkdir dest_folder
-  log2 "Move #{source_file} to #{dest_file}"
-  rename source_file, dest_file
+  names = names_with_suffix dest_file
+  is_unique = names.select do |n|
+    File.exists?(n) && FileUtils.cmp(n, source_file)
+  end.empty?
+
+  if is_unique
+    uniq_name = names.last
+    log2 "Synonym found, copying to #{uniq_name}"
+    mkdir dest_folder
+    rename source_file, uniq_name
+  else
+    log2 "Duplicate found, removing #{source_file}"
+    remove(source_file)
+  end
 end
 
 Maid.rules do
