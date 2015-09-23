@@ -1,6 +1,7 @@
 SOURCE = File.expand_path "~/Downloads/Data"
 DESTINATION = File.expand_path "~/Poker"
 
+require 'zip'
 require 'date'
 require 'shellwords'
 
@@ -232,24 +233,37 @@ Maid.rules do
 
     rule "[ZIP] #{poker_pattern} - limit #{limit}" do
 
-      # TODO: zip
-      # Process zip files
-      # zip_pattern = "*#{poker_pattern}*.zip"
-      # dir("#{SOURCE}/**/#{zip_pattern}").each do |path|
-      #   # skip pathes without limit pattern
-      #   next unless path.include?(limit_pattern)
-      #   log("Found zip-file #{path} to operate")
-      #   year = detect_year path
-      #   destination = File.join(DESTINATION, poker, limit, year)
-      #   mkdir(destination)
-      #   zipfile_contents(path).each do |name|
-      #     content = get_content_from_zip path, name
-      #     filepath = File.join destination, name
-      #     IO.write filepath, content
-      #   end
-      #   trash(path)
-      # end
+      zip_pattern = "*#{poker_pattern}*.zip"
+      dir("#{SOURCE}/**/#{zip_pattern}").each do |path|
+        # skip pathes without limit pattern
+        next unless path.include?(limit_pattern)
+        log("Found zip-file #{path} to operate")
+        year = detect_year path
+        destination = File.join(DESTINATION, poker, limit, year)
+        mkdir(destination)
 
+        # Create temp directory where zip file was found and extract zip
+        # contents there
+        dirname = File.dirname path
+        Dir.mktmpdir 'temp_', dirname do |tempdir|
+          Zip::File.open(path) do |zipfile|
+            zipfile.each do |file|
+              filename = file.name
+              file.extract(File.join tempdir, filename)
+            end
+          end
+          # Walk through extracted files and process them
+          Dir.entries(tempdir).select{ |n|
+            !File.directory? (File.join(tempdir, n))
+          }.each do |file|
+            new_path = File.join(tempdir, file)
+            log2 "processing from zip #{new_path}"
+            kind_move new_path, destination
+          end
+        end
+        # We can remove zip file once it was processed
+        remove path
+      end
     end
   end
 end
