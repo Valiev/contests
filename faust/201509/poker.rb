@@ -97,7 +97,8 @@ POKER_MAPPING = {
   ],
 
   "PL Holdem-PokerStars" => [
-    "PotLimitHoldem-PokerStars"
+    "PotLimitHoldem-PokerStars",
+    "Pot Limit Holdem-PokerStars"
   ]
 }
 
