@@ -6,6 +6,10 @@ task :install do
   copy('poker.rb', File.join(MAID_PATH, POKERFILE))
 end
 
-task :test do
+task :test => :install do
   sh "maid clean --noop -r poker.rb"
+end
+
+task :run => :install do
+  sh "maid clean --force -r poker.rb"
 end
