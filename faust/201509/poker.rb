@@ -1,4 +1,4 @@
-SOURCE = "~/Downloads/process_poker"
+SOURCE = "~/Downloads/Data"
 DESTINATION = "~/Poker"
 
 require 'date'
@@ -70,7 +70,7 @@ POKER_MAPPING = {
     "PotLimitOmaha-OnGame"
   ],
 
-  "PL Omaha Pacific" => [
+  "PL Omaha-Pacific" => [
     "PotLimitOmaha-Pacific"
   ],
 
@@ -134,22 +134,84 @@ def detect_year filepath
   end
 end
 
+def name_with_suffix filepath
+  ext = File.extname filepath
+  name = File.basename filepath, ext
+  path = File.dirname filepath
+
+  suffix = 0
+  suffix_name = nil
+  while true
+    suffix += 1
+    suffix_name = File.join(path, "#{name}_#{suffix}#{ext}")
+    log2 "Checking for new name #{suffix_name}"
+    break unless File.exists? suffix_name
+  end
+  suffix_name
+end
+
+def log2 msg
+  log msg
+  $stderr.puts msg
+end
+
+def empty_dir? folder
+  Dir["#{folder}/*"].empty?
+end
+
+def kind_move source_file, dest_folder
+  require 'fileutils'
+
+  dest_folder = File.expand_path dest_folder
+  basename = File.basename source_file
+
+  dest_file = File.join dest_folder, basename
+
+  if File.exist? dest_file
+    if FileUtils.cmp source_file, dest_file
+      log2 "Duplicate found, removing #{source_file}"
+      return remove(source_file)
+    else
+      dest_file = name_with_suffix dest_file
+      log2 "Synonym found, copying to #{dest_file}"
+    end
+  end
+
+  mkdir dest_folder
+  log2 "Move #{source_file} to #{dest_file}"
+  rename source_file, dest_file
+end
+
 Maid.rules do
+  # TODO: clean up
+  # rule "Remove empty folders" do
+  #   dirs = dir("#{SOURCE}/**/")
+  #   dirs.delete "#{SOURCE}/"
+
+  #   dirs.each do |folder|
+  #     remove(folder) if empty_dir?(folder)
+  #   end
+  # end
+
   poker_pattern_limit.each do |poker, poker_pattern, limit|
-    rule "Poker #{poker_pattern} with limit #{limit}" do
-      limit_pattern = LIMITS[limit]
+    limit_pattern = LIMITS[limit]
+
+    rule "[TXT] #{poker_pattern} - limit #{limit}" do
 
       # Process txt files
       txt_pattern = "*#{poker_pattern}*.txt"
       dir("#{SOURCE}/**/#{txt_pattern}").each do |path|
         # skip pathes without limit pattern
         next unless path.include?(limit_pattern)
-        log("Found txt-file #{path} to operate")
         year = detect_year path
         destination = File.join(DESTINATION, poker, limit, year)
-        move(path, mkdir(destination))
+        kind_move path, destination
       end
+    end
 
+    rule "[ZIP] #{poker_pattern} - limit #{limit}" do
+
+      # TODO: zip
       # Process zip files
       # zip_pattern = "*#{poker_pattern}*.zip"
       # dir("#{SOURCE}/**/#{zip_pattern}").each do |path|
