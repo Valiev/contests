@@ -1,7 +1,9 @@
-SOURCE = "~/Downloads/Data"
-DESTINATION = "~/Poker"
+SOURCE = File.expand_path "~/Downloads/Data"
+DESTINATION = File.expand_path "~/Poker"
 
 require 'date'
+require 'shellwords'
+
 CURRENT_YEAR = Date.today.year
 YEARS = 2001.upto(CURRENT_YEAR).to_a
 
@@ -156,7 +158,8 @@ def log2 msg
 end
 
 def empty_dir? folder
-  Dir["#{folder}/*"].empty?
+  f = Shellwords.escape folder
+  Dir.glob("#{f}/*").empty?
 end
 
 def kind_move source_file, dest_folder
@@ -183,15 +186,14 @@ def kind_move source_file, dest_folder
 end
 
 Maid.rules do
-  # TODO: clean up
-  # rule "Remove empty folders" do
-  #   dirs = dir("#{SOURCE}/**/")
-  #   dirs.delete "#{SOURCE}/"
+  rule "Remove empty folders" do
+    dirs = Dir.glob("#{SOURCE}/**/")
+    dirs.delete "#{SOURCE}/"
 
-  #   dirs.each do |folder|
-  #     remove(folder) if empty_dir?(folder)
-  #   end
-  # end
+    dirs.each do |folder|
+      remove(folder) if empty_dir? folder
+    end
+  end
 
   poker_pattern_limit.each do |poker, poker_pattern, limit|
     limit_pattern = LIMITS[limit]
