@@ -6,7 +6,7 @@ require 'date'
 require 'shellwords'
 
 CURRENT_YEAR = Date.today.year
-YEARS = 2001.upto(CURRENT_YEAR).to_a
+YEARS = 2010.upto(CURRENT_YEAR).to_a
 
 LIMITS = {
   "5-10"      => '-5-10-',
