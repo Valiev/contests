@@ -69,16 +69,19 @@ POKER_MAPPING = {
 
   "FL Holdem-OnGame" => [
     "FL Holdem-OnGame",
-    "FixedLimitHoldem-OnGame"
+    "FixedLimitHoldem-OnGame",
+    "OnGame-FixedLimitHoldem"
   ],
 
   "NL Holdem-OnGame" => [
     "NoLimitHoldem-OnGame",
-    "NL Holdem-OnGame"
+    "NL Holdem-OnGame",
+    "OnGame-NoLimitHoldem"
   ],
 
   "NL Holdem-FullTilt" => [
     "NoLimitHoldem-FullTilt",
+    "FullTilt-NoLimitHoldem"
   ],
 
   "NL Holdem-Pacific" => [
@@ -114,7 +117,8 @@ POKER_MAPPING = {
 
   "PL Holdem-PokerStars" => [
     "PotLimitHoldem-PokerStars",
-    "Pot Limit Holdem-PokerStars"
+    "Pot Limit Holdem-PokerStars",
+    "PokerStars-PotLimitHoldem"
   ]
 }
 
