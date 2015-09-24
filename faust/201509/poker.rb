@@ -38,12 +38,6 @@ POKER_MAPPING = {
     "PokerStars-FixedLimitHoldem"
   ],
 
-  "PL Omaha-PokerStars" => [
-    "PLO-PokerStars",
-    "PotLimitOmaha-PokerStars",
-    "PokerStars-PotLimitOmaha"
-  ],
-
   "PL Omaha-FullTilt" => [
     "PotLimitOmaha-FullTilt",
     "FullTilt-PotLimitOmaha"
@@ -52,6 +46,22 @@ POKER_MAPPING = {
   "PL Omaha-Pacific" => [
     "PotLimitOmaha-Pacific",
     "Pacific-PotLimitOmaha"
+  ],
+
+  "PL Omaha-PokerStars" => [
+    "PLO-PokerStars",
+    "PotLimitOmaha-PokerStars",
+    "PokerStars-PotLimitOmaha"
+  ],
+
+  "PL Omaha-MicroGaming" => [
+    "MicroGaming-PotLimitOmaha",
+    "PotLimitOmaha-MicroGaming"
+  ],
+
+  "PL Omaha-OnGame" => [
+    "PotLimitOmaha-OnGame",
+    "OnGame-PotLimitOmaha"
   ],
 
   "FL Holdem-OnGame" => [
@@ -65,15 +75,17 @@ POKER_MAPPING = {
   ],
 
   "NL Holdem-FullTilt" => [
-    "NoLimitHoldem-FullTilt"
+    "NoLimitHoldem-FullTilt",
   ],
 
   "NL Holdem-Pacific" => [
-    "NoLimitHoldem-Pacific"
+    "NoLimitHoldem-Pacific",
+    "Pacific-NoLimitHoldem"
   ],
 
   "FL Holdem-Pacific" => [
-    "FixedLimitHoldem-Pacific"
+    "FixedLimitHoldem-Pacific",
+    "Pacific-FixedLimitHoldem"
   ],
 
   "FL Omaha Hi-Lo-PokerStars" => [
@@ -82,24 +94,19 @@ POKER_MAPPING = {
     "PokerStars-FixedLimitOmahaHiLo"
   ],
 
-  "PL Omaha-OnGame" => [
-    "PotLimitOmaha-OnGame"
-  ],
-
   "FL Holdem-FullTilt" => [
-    "FixedLimitHoldem-FullTilt"
+    "FixedLimitHoldem-FullTilt",
+    "FullTilt-FixedLimitHoldem"
   ],
 
   "NL Holdem-MicroGaming" => [
-    "NoLimitHoldem-MicroGaming"
+    "NoLimitHoldem-MicroGaming",
+    "MicroGaming-NoLimitHoldem"
   ],
 
   "FL Holdem-MicroGaming" => [
-    "FixedLimitHoldem-MicroGaming"
-  ],
-
-  "PL Omaha-MicroGaming" => [
-    "PotLimitOmaha-MicroGaming"
+    "FixedLimitHoldem-MicroGaming",
+    "MicroGaming-FixedLimitHoldem"
   ],
 
   "PL Holdem-PokerStars" => [
