@@ -145,7 +145,7 @@ end
 
 def detect_year filepath
   found_years = YEARS.select do |year|
-    filepath.include? year.to_s
+    (File.basename filepath).include? "-#{year.to_s}"
   end
 
   case found_years.length
