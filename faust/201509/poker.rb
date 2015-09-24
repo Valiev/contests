@@ -158,6 +158,29 @@ def detect_year filepath
   end
 end
 
+def detect_poker filename
+  POKER_MAPPING.each do |type, patterns|
+    patterns.each do |pattern|
+      return type if filename.include? pattern
+    end
+  end
+  raise "Unable to find poker type"
+end
+
+def detect_limit filename
+  LIMITS.each do |limit, pattern|
+    return limit if filename.include? pattern
+  end
+  raise "Unable to find limit type"
+end
+
+def recognize_poker_limit_year filename
+  poker = detect_poker filename
+  limit = detect_limit filename
+  year  = detect_year filename
+  return poker, limit, year
+end
+
 def names_with_suffix filepath
   ext = File.extname filepath
   name = File.basename filepath, ext
