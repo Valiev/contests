@@ -256,7 +256,7 @@ Maid.rules do
       dir("#{SOURCE}/**/#{zip_pattern}").each do |path|
         # skip pathes without limit pattern
         next unless path.include?(limit_pattern)
-        log("Found zip-file #{path} to operate")
+        log2("Found zip-file #{path} to operate")
         year = detect_year path
         destination = File.join(DESTINATION, poker, limit, year)
         mkdir(destination)
