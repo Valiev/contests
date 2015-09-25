@@ -308,4 +308,32 @@ Maid.rules do
       end
     end
   end
+
+  # rule "Walk through rest of zip files" do
+  #   dir("#{SOURCE}/**/*.zip").each do |path|
+
+  #     # Create temp directory and extract zip
+  #     # contents there
+  #     # FIXME: extract, mig
+  #     Dir.mktmpdir 'poker_' do |tempdir|
+  #       Zip::File.open(path) do |zipfile|
+  #         zipfile.each do |file|
+  #           # Skip internal folders
+  #           filename = file.name
+  #           log2(filename)
+  #           next if filename.end_with? '/'
+  #           # Skip DS_Store
+  #           next if filename.include? '.DS_Store'
+  #           extracted_name = File.join tempdir, filename
+  #           file.extract extracted_name
+
+  #           p, l, y = recognize_poker_limit_year(extracted_name)
+  #           # destination = File.join(DESTINATION, p, l, y)
+  #           # kind_move extracted_name, destination
+  #         end
+  #       end
+  #     end
+  #     # remove path
+  #   end
+  # end
 end
