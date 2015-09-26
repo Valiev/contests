@@ -232,7 +232,7 @@ def kind_move source_file, dest_folder
 
   unless File.exists? dest_file
     mkdir dest_folder
-    return rename(source_file, dest_file)
+    return rename2 source_file, dest_file
   end
 
   names = names_with_suffix dest_file
@@ -244,11 +244,21 @@ def kind_move source_file, dest_folder
     uniq_name = names.last
     log2 "Synonym found, copying to #{uniq_name}"
     mkdir dest_folder
-    rename source_file, uniq_name
+    rename2 source_file, uniq_name
   else
     log2 "Duplicate found, removing #{source_file}"
-    remove(source_file)
+    remove2 source_file
   end
+end
+
+def remove2 path
+  remove path
+  log_delete
+end
+
+def rename2 src, dest
+  rename src, dest
+  log_move
 end
 
 
