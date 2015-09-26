@@ -111,6 +111,10 @@ POKER_MAPPING = {
     "MicroGaming-NoLimitHoldem"
   ],
 
+  "NL Holdem-IPoker" => [
+    "NoLimitHoldem-IPoker",
+  ],
+
   "FL Holdem-MicroGaming" => [
     "FixedLimitHoldem-MicroGaming",
     "MicroGaming-FixedLimitHoldem"
