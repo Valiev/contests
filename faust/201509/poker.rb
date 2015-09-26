@@ -147,42 +147,39 @@ def get_content_from_zip zipped_file, name
   end
 end
 
-def detect_year filepath
-  found_years = YEARS.select do |year|
-    (File.basename filepath).include? "-#{year.to_s}"
-  end
-
-  case found_years.length
-  when 0
-    raise "No years found"
-  when 1
-    return found_years.first.to_s
-  else
-    raise "Found multiple years"
-  end
-end
-
-def detect_poker filename
-  POKER_MAPPING.each do |type, patterns|
-    patterns.each do |pattern|
-      return type if filename.include? pattern
+def poker_regexps
+  acc = {}
+  poker_pattern_limit.each do |poker, poker_pattern, limit|
+    limit_pattern = LIMITS[limit]
+    YEARS.each do |year|
+      patterns = [
+        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})EURO-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})USD-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+      ].each do |pattern|
+        acc[pattern] = {
+          :poker => poker,
+          :limit => limit,
+          :year => year
+        }
+      end
     end
   end
-  raise "Unable to find poker type"
+  return acc
 end
 
-def detect_limit filename
-  LIMITS.each do |limit, pattern|
-    return limit if filename.include? pattern
+POKER_REGEXPS = poker_regexps()
+
+def parse_by_name filepath
+  filename = File.basename filepath
+  log2 "processing #{filename}"
+  POKER_REGEXPS.each do |pattern, data|
+    match = pattern.match filepath
+    next if match.nil?
+    return data
   end
-  raise "Unable to find limit type"
-end
 
-def recognize_poker_limit_year filename
-  poker = detect_poker filename
-  limit = detect_limit filename
-  year  = detect_year filename
-  return poker, limit, year
+  return nil
 end
 
 def names_with_suffix filepath
@@ -241,77 +238,87 @@ def kind_move source_file, dest_folder
   end
 end
 
+
 Maid.rules do
-  rule "Remove empty folders" do
-    dirs = Dir.glob("#{SOURCE}/**/")
-    dirs.delete "#{SOURCE}/"
+  # rule "Remove empty folders" do
+  #   dirs = Dir.glob("#{SOURCE}/**/")
+  #   dirs.delete "#{SOURCE}/"
 
-    dirs.each do |folder|
-      remove(folder) if empty_dir? folder
+  #   dirs.each do |folder|
+  #     remove(folder) if empty_dir? folder
+  #   end
+  # end
+
+  rule "Find txt files" do
+    dir("#{SOURCE}/**/*.txt").each do |path|
+      match = parse_by_name path
+      raise "Unable to manipulate with file: #{path}" if match.nil?
+      destination = File.join(DESTINATION, match[:poker], match[:limit], match[:year].to_s)
+      kind_move path, destination
     end
   end
 
-  poker_pattern_limit.each do |poker, poker_pattern, limit|
-    limit_pattern = LIMITS[limit]
+  #poker_pattern_limit.each do |poker, poker_pattern, limit|
+  #  limit_pattern = LIMITS[limit]
 
-    rule "[TXT] #{poker_pattern} - limit #{limit}" do
+  #  rule "[TXT] #{poker_pattern} - limit #{limit}" do
 
-      # Process txt files
-      txt_pattern = "*#{poker_pattern}*.txt"
-      dir("#{SOURCE}/**/#{txt_pattern}").each do |path|
-        # skip pathes without limit pattern
-        next unless path.include?(limit_pattern)
-        year = detect_year path
-        destination = File.join(DESTINATION, poker, limit, year)
-        kind_move path, destination
-      end
-    end
+  #    # Process txt files
+  #    txt_pattern = "*#{poker_pattern}*.txt"
+  #    dir("#{SOURCE}/**/#{txt_pattern}").each do |path|
+  #      # skip pathes without limit pattern
+  #      next unless path.include?(limit_pattern)
+  #      year = detect_year path
+  #      destination = File.join(DESTINATION, poker, limit, year)
+  #      kind_move path, destination
+  #    end
+  #  end
 
-    rule "[DAT] #{poker_pattern} - limit #{limit}" do
-      dat_pattern = "*#{poker_pattern}*.dat"
-      dir("#{SOURCE}/**/#{dat_pattern}").each do |path|
-        # skip pathes without limit pattern
-        next unless path.include?(limit_pattern)
-        year = detect_year path
-        destination = File.join(DESTINATION, poker, limit, year)
-        kind_move path, destination
-      end
-    end
+  #  rule "[DAT] #{poker_pattern} - limit #{limit}" do
+  #    dat_pattern = "*#{poker_pattern}*.dat"
+  #    dir("#{SOURCE}/**/#{dat_pattern}").each do |path|
+  #      # skip pathes without limit pattern
+  #      next unless path.include?(limit_pattern)
+  #      year = detect_year path
+  #      destination = File.join(DESTINATION, poker, limit, year)
+  #      kind_move path, destination
+  #    end
+  #  end
 
-    rule "[ZIP] #{poker_pattern} - limit #{limit}" do
+  #  rule "[ZIP] #{poker_pattern} - limit #{limit}" do
 
-      zip_pattern = "*#{poker_pattern}*.zip"
-      dir("#{SOURCE}/**/#{zip_pattern}").each do |path|
-        # skip pathes without limit pattern
-        next unless path.include?(limit_pattern)
-        log2("Found zip-file #{path} to operate")
-        year = detect_year path
-        destination = File.join(DESTINATION, poker, limit, year)
-        mkdir(destination)
+  #    zip_pattern = "*#{poker_pattern}*.zip"
+  #    dir("#{SOURCE}/**/#{zip_pattern}").each do |path|
+  #      # skip pathes without limit pattern
+  #      next unless path.include?(limit_pattern)
+  #      log2("Found zip-file #{path} to operate")
+  #      year = detect_year path
+  #      destination = File.join(DESTINATION, poker, limit, year)
+  #      mkdir(destination)
 
-        # Create temp directory and extract zip
-        # contents there
-        Dir.mktmpdir 'poker_' do |tempdir|
-          Zip::File.open(path) do |zipfile|
-            zipfile.each do |file|
-              filename = file.name
-              file.extract(File.join tempdir, filename)
-            end
-          end
-          # Walk through extracted files and process them
-          Dir.entries(tempdir).select{ |n|
-            !File.directory? (File.join(tempdir, n))
-          }.each do |file|
-            new_path = File.join(tempdir, file)
-            log2 "processing from zip #{new_path}"
-            kind_move new_path, destination
-          end
-        end
-        # We can remove zip file once it was processed
-        remove path
-      end
-    end
-  end
+  #      # Create temp directory and extract zip
+  #      # contents there
+  #      Dir.mktmpdir 'poker_' do |tempdir|
+  #        Zip::File.open(path) do |zipfile|
+  #          zipfile.each do |file|
+  #            filename = file.name
+  #            file.extract(File.join tempdir, filename)
+  #          end
+  #        end
+  #        # Walk through extracted files and process them
+  #        Dir.entries(tempdir).select{ |n|
+  #          !File.directory? (File.join(tempdir, n))
+  #        }.each do |file|
+  #          new_path = File.join(tempdir, file)
+  #          log2 "processing from zip #{new_path}"
+  #          kind_move new_path, destination
+  #        end
+  #      end
+  #      # We can remove zip file once it was processed
+  #      remove path
+  #    end
+  #  end
+  #end
 
   # rule "Walk through rest of zip files" do
   #   dir("#{SOURCE}/**/*.zip").each do |path|
