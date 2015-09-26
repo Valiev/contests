@@ -261,6 +261,39 @@ def rename2 src, dest
   log_move
 end
 
+def show_stats
+  log2 "=" * 80
+  log2 "STATS:"
+  log2 "#{STATS[:moved]} file(s) moved"
+  log2 "#{STATS[:deleted]} file(s) removed"
+end
+
+def process_file path
+  match = parse_by_name path
+  if match.nil?
+    show_stats
+    raise "Unable to manipulate with file: #{path}"
+  end
+  destination = File.join(DESTINATION, match[:poker], match[:limit], match[:year].to_s)
+  kind_move path, destination
+end
+
+def is_empty_tree folder
+  entries = (Dir.entries(folder) - ['.', '..', '.DS_Store'])
+  subfolders = []
+  entries.each do |e|
+    if File.directory? e
+      subfolders << e
+    else
+      return false
+    end
+  end
+
+  subfolders.each do |subfolder|
+    return false unless is_empty_tree(subfolder)
+  end
+  return true
+end
 
 Maid.rules do
   # rule "Remove empty folders" do
@@ -272,13 +305,55 @@ Maid.rules do
   #   end
   # end
 
-  rule "Find txt files" do
+  rule "Process TXT files" do
+
     dir("#{SOURCE}/**/*.txt").each do |path|
-      match = parse_by_name path
-      raise "Unable to manipulate with file: #{path}" if match.nil?
-      destination = File.join(DESTINATION, match[:poker], match[:limit], match[:year].to_s)
-      kind_move path, destination
+      process_file path
     end
+
+  end
+
+  rule "Process DAT files" do
+
+    dir("#{SOURCE}/**/*.dat").each do |path|
+      process_file path
+    end
+
+  end
+
+  rule "Process ZIP files" do
+
+    Dir.mktmpdir 'poker_' do |tempdir|
+      dir("#{SOURCE}/**/*.zip").each do |path|
+        Zip::File.open(path) do |ziphandle|
+          ziphandle.each do |zipped_file|
+            filename = File.basename zipped_file.name
+            next if filename.end_with? '/'
+            next if filename.include? '.DS_Store'
+            output_file = File.join tempdir, filename
+            zipped_file.extract output_file
+            # Do not process if it's directory
+            next if Dir.exists? output_file
+            process_file output_file
+          end
+        end
+        remove2 path
+      end
+    end
+
+  end
+
+  # rule "Delete Empty folders" do
+  #   dir("#{SOURCE}/**/*/").each do |folder|
+  #     next unless Dir.exist? folder
+  #     remove folder if is_empty_tree folder
+  #   end
+  # end
+
+  rule "Show stats" do
+
+    show_stats
+
   end
 
   #poker_pattern_limit.each do |poker, poker_pattern, limit|
