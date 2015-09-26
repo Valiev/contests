@@ -209,6 +209,19 @@ def empty_dir? folder
   Dir.glob("#{f}/*").empty?
 end
 
+STATS = {
+  moved: 0,
+  deleted: 0
+}
+
+def log_move
+  STATS[:moved] += 1
+end
+
+def log_delete
+  STATS[:deleted] +=1
+end
+
 def kind_move source_file, dest_folder
   require 'fileutils'
 
