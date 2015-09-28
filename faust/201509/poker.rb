@@ -355,12 +355,13 @@ Maid.rules do
 
   end
 
-  # rule "Delete Empty folders" do
-  #   dir("#{SOURCE}/**/*/").each do |folder|
-  #     next unless Dir.exist? folder
-  #     remove folder if is_empty_tree folder
-  #   end
-  # end
+
+  rule "Delete Empty folders" do
+    dir("#{SOURCE}/**/*/").each do |folder|
+      next unless Dir.exist? folder
+      remove2 folder if is_empty_tree folder
+    end
+  end
 
   rule "Show stats" do
 
