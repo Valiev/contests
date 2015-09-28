@@ -297,16 +297,38 @@ def is_empty_tree folder
   return true
 end
 
+def process_zip_file path
+  Dir.mktmpdir 'poker_' do |tempdir|
+    Zip::File.open(path) do |ziphandle|
+      total = ziphandle.entries.length
+      name = File.basename path
+      ziphandle.each_with_index do |zipped_file, idx|
+        log2 "[#{idx}/#{total}] processing #{name}"
+        filename = File.basename zipped_file.name
+        next if filename.end_with? '/'
+        next if filename.end_with? '.icloud'
+        next if filename.include? '.DS_Store'
+        output_file = File.join tempdir, filename
+        zipped_file.extract output_file
+        # Do not process if it's directory
+        next if Dir.exists? output_file
+        ext = File.extname output_file
+
+        if ['.txt', '.dat'].include? ext
+          process_file output_file
+        elsif ext == '.zip'
+          process_zip_file output_file
+        else
+          raise "Enable to process #{output_file}"
+        end
+
+      end
+    end
+    remove2 path
+  end
+end
+
 Maid.rules do
-  # rule "Remove empty folders" do
-  #   dirs = Dir.glob("#{SOURCE}/**/")
-  #   dirs.delete "#{SOURCE}/"
-
-  #   dirs.each do |folder|
-  #     remove(folder) if empty_dir? folder
-  #   end
-  # end
-
   rule "Process TXT files" do
 
     dir("#{SOURCE}/**/*.txt").each do |path|
@@ -325,22 +347,9 @@ Maid.rules do
 
   rule "Process ZIP files" do
 
-    Dir.mktmpdir 'poker_' do |tempdir|
-      dir("#{SOURCE}/**/*.zip").each do |path|
-        Zip::File.open(path) do |ziphandle|
-          ziphandle.each do |zipped_file|
-            filename = File.basename zipped_file.name
-            next if filename.end_with? '/'
-            next if filename.include? '.DS_Store'
-            output_file = File.join tempdir, filename
-            zipped_file.extract output_file
-            # Do not process if it's directory
-            next if Dir.exists? output_file
-            process_file output_file
-          end
-        end
-        remove2 path
-      end
+    dir("#{SOURCE}/**/*.zip").each do |path|
+      log2 "processing zip #{path}"
+      process_zip_file path
     end
 
   end
@@ -357,94 +366,4 @@ Maid.rules do
     show_stats
 
   end
-
-  #poker_pattern_limit.each do |poker, poker_pattern, limit|
-  #  limit_pattern = LIMITS[limit]
-
-  #  rule "[TXT] #{poker_pattern} - limit #{limit}" do
-
-  #    # Process txt files
-  #    txt_pattern = "*#{poker_pattern}*.txt"
-  #    dir("#{SOURCE}/**/#{txt_pattern}").each do |path|
-  #      # skip pathes without limit pattern
-  #      next unless path.include?(limit_pattern)
-  #      year = detect_year path
-  #      destination = File.join(DESTINATION, poker, limit, year)
-  #      kind_move path, destination
-  #    end
-  #  end
-
-  #  rule "[DAT] #{poker_pattern} - limit #{limit}" do
-  #    dat_pattern = "*#{poker_pattern}*.dat"
-  #    dir("#{SOURCE}/**/#{dat_pattern}").each do |path|
-  #      # skip pathes without limit pattern
-  #      next unless path.include?(limit_pattern)
-  #      year = detect_year path
-  #      destination = File.join(DESTINATION, poker, limit, year)
-  #      kind_move path, destination
-  #    end
-  #  end
-
-  #  rule "[ZIP] #{poker_pattern} - limit #{limit}" do
-
-  #    zip_pattern = "*#{poker_pattern}*.zip"
-  #    dir("#{SOURCE}/**/#{zip_pattern}").each do |path|
-  #      # skip pathes without limit pattern
-  #      next unless path.include?(limit_pattern)
-  #      log2("Found zip-file #{path} to operate")
-  #      year = detect_year path
-  #      destination = File.join(DESTINATION, poker, limit, year)
-  #      mkdir(destination)
-
-  #      # Create temp directory and extract zip
-  #      # contents there
-  #      Dir.mktmpdir 'poker_' do |tempdir|
-  #        Zip::File.open(path) do |zipfile|
-  #          zipfile.each do |file|
-  #            filename = file.name
-  #            file.extract(File.join tempdir, filename)
-  #          end
-  #        end
-  #        # Walk through extracted files and process them
-  #        Dir.entries(tempdir).select{ |n|
-  #          !File.directory? (File.join(tempdir, n))
-  #        }.each do |file|
-  #          new_path = File.join(tempdir, file)
-  #          log2 "processing from zip #{new_path}"
-  #          kind_move new_path, destination
-  #        end
-  #      end
-  #      # We can remove zip file once it was processed
-  #      remove path
-  #    end
-  #  end
-  #end
-
-  # rule "Walk through rest of zip files" do
-  #   dir("#{SOURCE}/**/*.zip").each do |path|
-
-  #     # Create temp directory and extract zip
-  #     # contents there
-  #     # FIXME: extract, mig
-  #     Dir.mktmpdir 'poker_' do |tempdir|
-  #       Zip::File.open(path) do |zipfile|
-  #         zipfile.each do |file|
-  #           # Skip internal folders
-  #           filename = file.name
-  #           log2(filename)
-  #           next if filename.end_with? '/'
-  #           # Skip DS_Store
-  #           next if filename.include? '.DS_Store'
-  #           extracted_name = File.join tempdir, filename
-  #           file.extract extracted_name
-
-  #           p, l, y = recognize_poker_limit_year(extracted_name)
-  #           # destination = File.join(DESTINATION, p, l, y)
-  #           # kind_move extracted_name, destination
-  #         end
-  #       end
-  #     end
-  #     # remove path
-  #   end
-  # end
 end
