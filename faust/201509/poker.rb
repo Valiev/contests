@@ -355,6 +355,13 @@ Maid.rules do
 
   end
 
+  rule "Delete .cloud files" do
+    dir("#{SOURCE}/**/.*").each do |path|
+      ext = File.extname path
+      remove2 path if ext == '.icloud'
+    end
+
+  end
 
   rule "Delete Empty folders" do
     dir("#{SOURCE}/**/*/").each do |folder|
