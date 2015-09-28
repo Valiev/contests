@@ -281,9 +281,10 @@ def process_file path
 end
 
 def is_empty_tree folder
-  entries = (Dir.entries(folder) - ['.', '..', '.DS_Store'])
+  entries = (Dir.entries(folder) - %w(. .. .DS_Store ._.DS_Store))
   subfolders = []
-  entries.each do |e|
+  entries.each do |entry|
+    e = File.join folder, entry
     if File.directory? e
       subfolders << e
     else
