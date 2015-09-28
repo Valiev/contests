@@ -153,9 +153,11 @@ def poker_regexps
     limit_pattern = LIMITS[limit]
     YEARS.each do |year|
       patterns = [
+        # Finsen II CAP,20-50 bb-5-10-Cap NL Holdem-PokerStars-1-15-2014.txt
         %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})EURO-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
         %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})USD-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
         %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})(?<spam>.*)#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
       ].each do |pattern|
         acc[pattern] = {
           :poker => poker,
