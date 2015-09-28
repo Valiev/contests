@@ -248,7 +248,7 @@ def kind_move source_file, dest_folder
     mkdir dest_folder
     rename2 source_file, uniq_name
   else
-    log2 "Duplicate found, removing #{source_file}"
+    log2 "Duplicate found, removing #{File.basename source_file}"
     remove2 source_file
   end
 end
