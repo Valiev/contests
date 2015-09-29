@@ -295,11 +295,12 @@ end
 
 def process_file path
   match = parse_by_name path
+
   if match.nil?
-    show_stats
-    raise "Unable to manipulate with file: #{path}"
+    destination = File.join(DESTINATION, 'other')
+  else
+    destination = File.join(DESTINATION, match[:poker], match[:limit], match[:year].to_s)
   end
-  destination = File.join(DESTINATION, match[:poker], match[:limit], match[:year].to_s)
   kind_move path, destination
 end
 
