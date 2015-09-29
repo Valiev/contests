@@ -359,37 +359,34 @@ end
 
 Maid.rules do
   rule "Process TXT files" do
-
     dir("#{SOURCE}/**/*.txt").each do |path|
       process_file path
     end
-
   end
 
-  rule "Process DAT files" do
 
+  rule "Process DAT files" do
     dir("#{SOURCE}/**/*.dat").each do |path|
       process_file path
     end
-
   end
 
-  rule "Process ZIP files" do
 
+  rule "Process ZIP files" do
     dir("#{SOURCE}/**/*.zip").each do |path|
       log2 "processing zip #{path}"
       process_zip_file path
     end
-
   end
+
 
   rule "Delete .cloud files" do
     dir("#{SOURCE}/**/.*").each do |path|
       ext = File.extname path
       remove2 path if ext == '.icloud'
     end
-
   end
+
 
   rule "Delete Empty folders" do
     dir("#{SOURCE}/**/*/").each do |folder|
@@ -398,9 +395,8 @@ Maid.rules do
     end
   end
 
+
   rule "Show stats" do
-
     show_stats
-
   end
 end
