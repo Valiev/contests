@@ -169,14 +169,18 @@ def poker_regexps
   acc = {}
   poker_pattern_limit.each do |poker, poker_pattern, limit|
     limit_pattern = LIMITS[limit]
+    # -$5-$10- pattern
+    dollar_pattern = limit_pattern.gsub(/\d+/) {|s| "\\$#{s}"}
     YEARS.each do |year|
       patterns = [
         # Finsen II CAP,20-50 bb-5-10-Cap NL Holdem-PokerStars-1-15-2014.txt
         # Aglasun 817033778-20-40-EURO-FixedLimitHoldem-IPoker-1-16-2014.txt
-        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})EURO-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
-        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})USD-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
-        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        # Posadas (Real Money)-50-100-NL Holdem-Pacific-5-18-2012.txt
         %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})(?<spam>.*)#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|.*(?<gameinfo>.*)(?<limit>#{dollar_pattern})(?<spam>.*)#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})USD-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})EURO-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
       ].each do |pattern|
         acc[pattern] = {
           :poker => poker,
