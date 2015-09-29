@@ -61,6 +61,11 @@ POKER_MAPPING = {
     "PokerStars-PotLimitOmaha"
   ],
 
+  "PL Omaha-IPoker" => [
+    "PotLimitOmaha-IPoker"
+  ],
+
+
   "PL Omaha-MicroGaming" => [
     "MicroGaming-PotLimitOmaha",
     "PotLimitOmaha-MicroGaming"
@@ -114,6 +119,10 @@ POKER_MAPPING = {
     "MicroGaming-NoLimitHoldem"
   ],
 
+  "FL Holdem-IPoker" => [
+    "FixedLimitHoldem-IPoker",
+  ],
+
   "NL Holdem-IPoker" => [
     "NoLimitHoldem-IPoker",
   ],
@@ -157,6 +166,7 @@ def poker_regexps
     YEARS.each do |year|
       patterns = [
         # Finsen II CAP,20-50 bb-5-10-Cap NL Holdem-PokerStars-1-15-2014.txt
+        # Aglasun 817033778-20-40-EURO-FixedLimitHoldem-IPoker-1-16-2014.txt
         %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})EURO-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
         %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})USD-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
         %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
