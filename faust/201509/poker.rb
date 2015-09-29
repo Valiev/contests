@@ -48,7 +48,9 @@ POKER_MAPPING = {
   ],
 
   "FL Holdem-PartyPoker" => [
-    "FixedLimitHoldem-PartyPoker"
+    "FixedLimitHoldem-PartyPoker",
+    "FL Holdem-PartyPoker",
+    "FixedLimitHoldem-Party"
   ],
 
   "PL Omaha-FullTilt" => [
@@ -79,7 +81,8 @@ POKER_MAPPING = {
 
   "PL Omaha-OnGame" => [
     "PotLimitOmaha-OnGame",
-    "OnGame-PotLimitOmaha"
+    "OnGame-PotLimitOmaha",
+    "PLO-OnGame"
   ],
 
   "FL Holdem-OnGame" => [
