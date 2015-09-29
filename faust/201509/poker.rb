@@ -239,16 +239,26 @@ def empty_dir? folder
 end
 
 STATS = {
-  moved: 0,
-  deleted: 0
+  moved_files:       0,
+  moved_files_other: 0,
+  deleted_files:     0,
+  deleted_folders:   0,
 }
 
 def log_move
-  STATS[:moved] += 1
+  STATS[:moved_files] += 1
 end
 
-def log_delete
-  STATS[:deleted] +=1
+def log_folder_delete
+  STATS[:deleted_files] +=1
+end
+
+def log_file_delete
+  STATS[:deleted_folders] +=1
+end
+
+def log_move_other
+  STATS[:moved_files_other] +=1
 end
 
 def kind_move source_file, dest_folder
@@ -281,8 +291,13 @@ def kind_move source_file, dest_folder
 end
 
 def remove2 path
+
+  if Dir.exists? path
+    log_folder_delete
+  else
+    log_file_delete
+  end
   remove path
-  log_delete
 end
 
 def rename2 src, dest
@@ -293,8 +308,9 @@ end
 def show_stats
   log2 "=" * 80
   log2 "STATS:"
-  log2 "#{STATS[:moved]} file(s) moved"
-  log2 "#{STATS[:deleted]} file(s) removed"
+  log2 "#{STATS[:moved_files]} file(s) moved, #{STATS[:moved_files_other]} of them to 'other' folder"
+  log2 "#{STATS[:deleted_files]} file(s) removed"
+  log2 "#{STATS[:deleted_folders]} folders(s) removed"
 end
 
 def process_file path
@@ -302,6 +318,7 @@ def process_file path
 
   if match.nil?
     destination = File.join(DESTINATION, 'other')
+    log_move_other
   else
     destination = File.join(DESTINATION, match[:poker], match[:limit], match[:year].to_s)
   end
