@@ -169,6 +169,39 @@ def get_content_from_zip zipped_file, name
   end
 end
 
+
+def poker_cap_regexps
+  acc = {}
+  poker_pattern_limit.each do |poker, poker_pattern, limit|
+    limit_pattern = LIMITS[limit]
+
+    # -$5-$10- pattern
+    # dollar_pattern = limit_pattern.gsub(/\d+/) {|s| "\\$#{s}"}
+
+    # 'NL Holdem CAP-PokerStars' instead of 'NL Holdem-PokerStars'
+    prefix, suffix = poker.split('-')
+    cap_poker = [prefix + ' CAP', suffix].join('-')
+    YEARS.each do |year|
+      patterns = [
+        # Finsen II CAP,20-50 bb-5-10-Cap NL Holdem-PokerStars-1-15-2014.txt
+        %r|(?<gameinfo_0>.*)CAP,(?<gameinfo_1>.*)(?<limit>#{limit_pattern})(?<spam>.*)#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        %r|(?<gameinfo_0>.*)\(CAP\)(?<gameinfo_1>.*)(?<limit>#{limit_pattern})(?<spam>.*)#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        # %r|.*(?<gameinfo>.*)(?<limit>#{dollar_pattern})(?<spam>.*)#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        # %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        # %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})USD-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+        # %r|.*(?<gameinfo>.*)(?<limit>#{limit_pattern})EURO-#{poker_pattern}(?<date_info>.*)(?<year>-#{year}).*|,
+      ].each do |pattern|
+        acc[pattern] = {
+          :poker => cap_poker,
+          :limit => limit,
+          :year => year
+        }
+      end
+    end
+  end
+  return acc
+end
+
 def poker_regexps
   acc = {}
   poker_pattern_limit.each do |poker, poker_pattern, limit|
@@ -197,11 +230,19 @@ def poker_regexps
   return acc
 end
 
-POKER_REGEXPS = poker_regexps()
+POKER_CAP_REGEXPS = poker_cap_regexps()
+POKER_REGEXPS     = poker_regexps()
 
 def parse_by_name filepath
   filename = File.basename filepath
   log2 "processing #{filename}"
+
+  POKER_CAP_REGEXPS.each do |pattern, data|
+    match = pattern.match filepath
+    next if match.nil?
+    return data
+  end
+
   POKER_REGEXPS.each do |pattern, data|
     match = pattern.match filepath
     next if match.nil?
