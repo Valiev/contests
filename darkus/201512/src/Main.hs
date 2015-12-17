@@ -61,7 +61,7 @@ main = do
   withFile "Result_01.txt" WriteMode $ \h -> do
     forM_ significants (\m -> hPrintf h "%s\n" $ showMData m)
 
-  let mutational = filter mutationFilter info
+  let mutational = filter mutationFilter significants
   withFile "Result_02.txt" WriteMode $ \h -> do
     forM_ mutational (\m -> hPrintf h "%s\n" $ showMDataCor m)
 
