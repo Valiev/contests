@@ -1,0 +1,21 @@
+module Matrix where
+
+data MatrixT = Matrix [Double]
+m0  = Matrix [0,0,0,0]
+m1  = Matrix [0,0,0,1]
+m2  = Matrix [0,0,1,0]
+m3  = Matrix [0,0,1,1]
+m4  = Matrix [0,1,0,0]
+m5  = Matrix [0,1,0,1]
+m6  = Matrix [0,1,1,0]
+m7  = Matrix [0,1,1,1]
+m8  = Matrix [1,0,0,0]
+m9  = Matrix [1,0,0,1]
+m10 = Matrix [1,0,1,0]
+m11 = Matrix [1,0,1,1]
+m12 = Matrix [1,1,0,0]
+m13 = Matrix [1,1,0,1]
+m14 = Matrix [1,1,1,0]
+m15 = Matrix [1,1,1,1]
+
+matrices = [m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15]
