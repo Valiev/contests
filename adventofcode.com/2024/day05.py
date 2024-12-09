@@ -77,31 +77,15 @@ def check_seq(graph, seq):
     return True
 
 
-def cmp_graph_pos(graph, from_node, to_node):
-    def dfs(n1, n2):
-        if n1 not in graph:
-            return False
-        if n2 in graph[n1]:
-            return True
-        return any(
-            dfs(k, n2)
-            for k in graph[n1]
-        )
-    return dfs(from_node, to_node)
-
-
 def fix_seq(graph, seq):
     N = len(seq)
-    print('fixing seq', seq)
     for pos in range(N):
-        print('- pos:', pos)
         cmp_pos = pos + 1
         while cmp_pos < N:
-            print(cmp_pos)
-            if cmp_graph_pos(graph, seq[pos], seq[cmp_pos]):
+            cur, cur_next = seq[pos], seq[cmp_pos]
+            if cur_next in graph[cur]:
                 cmp_pos += 1
             else:
-                print(seq, "switching", seq[pos], seq[cmp_pos])
                 seq[pos], seq[cmp_pos] = seq[cmp_pos], seq[pos]
                 cmp_pos = pos + 1
     return seq
