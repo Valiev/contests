@@ -17,6 +17,9 @@ class Result:
     def is_error(self):
         return not self.is_ok()
 
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.value})"
+
 class Ok(Result):
     def is_ok(self):
         return True
