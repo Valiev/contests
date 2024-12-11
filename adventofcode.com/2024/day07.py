@@ -19,7 +19,9 @@ def check_line(line, functions):
 
     def dfs(cur, pos):
         if cur == desired_value:
-            return True
+            if pos == len(values):
+                return True
+
         if cur > desired_value:
             return False
         if pos >= len(values):
@@ -56,9 +58,9 @@ if __name__ == "__main__":
     result1 = puzzle(input_file, functions1)
     print(result1)
     functions2 = [
+        lambda x, y: int(f"{x}{y}"),
         lambda x, y: x * y,
         lambda x, y: x + y,
-        lambda x, y: int(f"{x}{y}")
     ]
     result2 = puzzle(input_file, functions2)
     print(result2)
