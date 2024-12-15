@@ -1,109 +1,96 @@
 from itertools import combinations
-from helpers import input_filepath
-
-
-def get_locations(lines):
-    locations = dict()
-    for y, line in enumerate(lines):
-        for x, elem in enumerate(line):
-            if elem == '.':
-                continue
-            locations[elem] = locations.get(elem, set())
-            locations[elem].add((x, y))
-    return locations
+from collections import defaultdict
+from pprint import pprint
+from helpers import BasePuzzle, input_filepath
 
 
 class Pos:
-    def __init__(self, x, y):
+    def __init__(self, x, y, elem):
         self.x = x
         self.y = y
+        self.elem = elem
 
     def __add__(self, other):
-        return Pos(self.x + other.x, self.y + other.y)
+        return Pos(self.x + other.x, self.y + other.y, self.elem)
 
     def __sub__(self, other):
-        return Pos(self.x - other.x, self.y - other.y)
+        return Pos(self.x - other.x, self.y - other.y, self.elem)
+
+    def __str__(self):
+        return f"{self.elem}[{self.x},{self.y}]"
+
+    __repr__ = __str__
 
     def __hash__(self):
         return hash((self.x, self.y))
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
 
     def bounded(self, x_max, y_max):
         return (0 <= self.x < x_max) and (0 <= self.y < y_max)
 
 
-def antinode_locations(locations):
-    for elem in locations:
-        for pos1, pos2 in combinations(locations[elem], 2):
+class Puzzle(BasePuzzle):
+    DAY = '08'
 
-            yield (elem, (
-                2 * pos2[0] - pos1[0],
-                2 * pos2[1] - pos1[1]
-            ))
-            yield (elem, (
-                2 * pos1[0] - pos2[0],
-                2 * pos1[1] - pos2[1]
-            ))
+    def get_node_locations(self, lines):
+        locations = defaultdict(set)
+        for y, line in enumerate(lines):
+            for x, elem in enumerate(line):
+                if elem == '.':
+                    continue
+                locations[elem].add((x, y))
 
+        return locations
 
-def antinode_locations2(locations, x_max, y_max):
-    for elem in locations:
-        for pos1, pos2 in combinations(locations[elem], 2):
-            p1 = Pos(*pos1)
-            p2 = Pos(*pos2)
-            delta = p2 - p1
-            p2_antinode = p2 + delta
-            while p2_antinode.bounded(x_max, y_max):
-                yield p2_antinode
-                p2_antinode += p2
+    def get_antinode_locations(self, locations, x_max, y_max, one_time=True):
+        for elem in locations:
+            for pos1, pos2 in combinations(locations[elem], 2):
+                # src = Pos(pos1[0], pos1[1], elem)
+                src = Pos(*pos1, elem)
+                dst = Pos(*pos2, elem)
+                delta = dst - src
+                dst_next = dst
+                while dst_next.bounded(x_max, y_max):
+                    yield dst_next
+                    if one_time:
+                        break
+                    dst_next += delta
 
-            p1_antinode = p1 - delta
-            while p1_antinode.bounded(x_max, y_max):
-                yield p1_antinode
-                p1_antinode += p1
+                src_next = src
+                while src_next.bounded(x_max, y_max):
+                    yield src_next
+                    if one_time:
+                        break
+                    src_next -= delta
 
+    def solve(self, one_time):
+        lines = list(self.read_input_lines())
 
-def puzzle1(input_file):
-    lines = []
-    with open(input_file) as fp:
-        for line in fp:
-            # having '\n' in line changes the final answer
-            lines.append(line.strip())
+        X_MAX = len(lines[0])
+        Y_MAX = len(lines)
 
-    X_MAX = len(lines[0])
-    Y_MAX = len(lines)
+        locations = self.get_node_locations(lines)
+        return len(
+            set(
+                self.get_antinode_locations(
+                    locations, X_MAX, Y_MAX, one_time=one_time
+                )
+            )
+        )
 
-    locations = get_locations(lines)
-    antinodes = set()
-    for _, antinode in antinode_locations(locations):
-        if not (0 <= antinode[0] < X_MAX):
-            continue
-        if not (0 <= antinode[1] < Y_MAX):
-            continue
-        antinodes.add(antinode)
+    def solve1(self):
+        return self.solve(one_time=True)
 
-    return len(antinodes)
-
-def puzzle2(input_file):
-    lines = []
-    with open(input_file) as fp:
-        for line in fp:
-            # having '\n' in line changes the final answer
-            lines.append(line.strip())
-
-    X_MAX = len(lines[0])
-    Y_MAX = len(lines)
-
-    antinodes = set()
-    locations = get_locations(lines)
-    for antinode in antinode_locations2(locations, X_MAX, Y_MAX):
-        antinodes.add(antinode)
-    return len(antinodes)
-
+    def solve2(self):
+        return self.solve(one_time=False)
 
 
 if __name__ == "__main__":
-    input_file = input_filepath("day08.txt")
-    result1 = puzzle1(input_file)
-    print(result1)
-    result2 = puzzle2(input_file)
-    print(result2)
+    puzzle = Puzzle()
+    print(puzzle.solve1())
+    print(puzzle.solve2())
+    # result2 = puzzle2(input_file)
+    # # 1047
+    # print(result2)
