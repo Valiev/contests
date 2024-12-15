@@ -6,7 +6,6 @@ INPUT_FOLDER = Path(__file__).parent / "inputs"
 def input_filepath(filename):
     return (INPUT_FOLDER / filename).resolve()
 
-
 class Result:
     def __init__(self, value):
         self.value = value
@@ -28,3 +27,26 @@ class Ok(Result):
 class Error(Result):
     def is_error(self):
         return True
+
+class BasePuzzle:
+    DAY = '00'
+
+    def __init__(self):
+        self.file = input_filepath(f"day{self.DAY}.txt")
+
+    def read_input(self):
+        with open(self.file) as fp:
+            return fp.read()
+
+    def read_input_lines(self):
+        with open(self.file) as fp:
+            for line in fp:
+                yield line.strip()
+
+    def solve1(self):
+        raise NotImplementedError
+
+    def solve2(self):
+        raise NotImplementedError
+
+
